@@ -9,13 +9,7 @@ import { ApiBody } from '@nestjs/swagger';
 @Controller('auth')
 export class AuthController {
   constructor(private readonly authService: AuthService) {}
-
-
-  @Get("google")
-  @UseGuards(AuthGuard("google"))
-  authGoogle() {}
-
-
+  
   @Get("google/callback")
   @UseGuards(AuthGuard("google"))
   googleRedirect(@Request() req: any) {

@@ -5,24 +5,43 @@ import { Work } from './entities/work.entity';
 import { CreateWorkDto } from './dto/create-work.dto';
 import { FilterWorkDto } from './dto/filter-work.dto'; 
 import { UpdateWorkDto } from './dto/update-work.dto';
+import { Category } from '../categories/entities/category.entity';
+import { Employer } from '../employer/entities/employer.entity';
 
 @Injectable()
 export class WorkService {
   constructor(
     @InjectRepository(Work) private readonly workRepo: Repository<Work>,
+    @InjectRepository(Employer) private readonly empRepo :Repository<Employer>,
+    @InjectRepository(Category) private readonly CtgRepo :Repository<Category>
   ) {}
 
   async create(createWorkDto: CreateWorkDto): Promise<Work> {
     try {
-      const work = this.workRepo.create(createWorkDto);
-      return await this.workRepo.save(work);
-    } catch (error) {
+       const { categoryId, employerId } = createWorkDto; 
+
+    
+    const foundedEmployer = await this.empRepo.findOneBy({ id: employerId });
+    const foundedCategory = await this.CtgRepo.findOneBy({ id: categoryId });
+
+    
+    if (!foundedEmployer) {
+      throw new NotFoundException("Employer Id not found");
+    }
+
+    if (!foundedCategory) {
+      throw new NotFoundException("Category Id not found");
+    }
+
+    const work = this.workRepo.create(createWorkDto);
+    return await this.workRepo.save(work);
+    } catch (error) { 
       throw new InternalServerErrorException(error.message);
     }
   }
 
  async findAll(query: FilterWorkDto) {
-  
+
   const { page = 1, limit = 10, search, experience, categoryId } = query;
 
   const queryBuilder = this.workRepo.createQueryBuilder("work")

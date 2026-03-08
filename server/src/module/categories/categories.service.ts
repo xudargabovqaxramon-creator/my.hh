@@ -12,13 +12,14 @@ export class CategoriesService {
     private readonly categoryRepo: Repository<Category>,
   ) {}
 
-  async create(createCategoryDto: CreateCategoryDto): Promise<Category> {
+  async create(createCategoryDto: CreateCategoryDto): Promise<Category | {message: "Category created"}> {
     try {
       const exists = await this.categoryRepo.findOne({ where: { name: createCategoryDto.name } });
       if (exists) throw new ConflictException("Ushbu kategoriya allaqachon mavjud");
 
       const category = this.categoryRepo.create(createCategoryDto);
-      return await this.categoryRepo.save(category);
+      const saved = await this.categoryRepo.save(category);
+      return saved
     } catch (error) {
       if (error instanceof ConflictException) throw error;
       throw new InternalServerErrorException(error.message);

@@ -21,7 +21,8 @@ export class EmployerService {
         }
 
         const employer = this.employerRepo.create(dto);
-        return await this.employerRepo.save(employer);
+        const savedEmployer = await this.employerRepo.save(employer);
+        return {message : "Employer added",savedEmployer};
     }
 
     async findAll() {
@@ -39,7 +40,7 @@ export class EmployerService {
   async update(id: number, updateDto: UpdateEmployerDto) {
     const employer = await this.findOne(id);
 
-    // Agar davlat yoki region yangilanayotgan bo'lsa, moslikni tekshiramiz
+    
     if (updateDto.country || updateDto.region) {
       const country = updateDto.country || employer.country;
       const region = updateDto.region || employer.region;
@@ -51,7 +52,8 @@ export class EmployerService {
     }
 
     Object.assign(employer, updateDto);
-    return await this.employerRepo.save(employer);
+    const save = await this.employerRepo.save(employer);
+    return {message: "Employer updated" , save}
   }
 
   async remove(id: number) {

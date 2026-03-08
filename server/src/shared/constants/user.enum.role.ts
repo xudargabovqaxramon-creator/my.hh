@@ -35,3 +35,13 @@ export const CountryRegions: Record<EnumCitizenship, string[]> = {
   [EnumCitizenship.KOREA]: ["Seoul", "Busan", "Incheon"],
   [EnumCitizenship.UK]: ["London", "Manchester", "Birmingham"],
 } as const; 
+
+
+export enum EnumSkills {
+  NODEJS = 'Node.js',
+  NESTJS = 'NestJS',
+  REACT = 'React',
+  TYPESCRIPT = 'TypeScript',
+  POSTGRES = 'PostgreSQL',
+  PYTHON = 'Python',
+}

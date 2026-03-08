@@ -30,6 +30,18 @@ export class WorkController {
     return this.workService.findAll(query);
   }
 
+  
+  @ApiBearerAuth("JWT-auth")
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
+  @ApiOperation({ summary: "Mening vakansiyalarim ro'yxati {Employer}" })
+  @Get('my-works')
+  findAllMyWorks(@Req() req: any) {
+    return this.workService.findAllByEmployer(req.user.id);
+  }
+
+
+
   @ApiOperation({ summary: "Bitta vakansiyani olish {Public}" })
   @ApiNotFoundResponse({ description: "Vakansiya topilmadi" })
   @Get(':id')
@@ -39,27 +51,16 @@ export class WorkController {
 
   @ApiBearerAuth("JWT-auth")
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN, UserRole.EMPLOYER) // Faqat ish beruvchi va admin
+  @Roles(UserRole.ADMIN, UserRole.EMPLOYER) 
   @ApiOperation({ summary: "Yangi vakansiya yaratish {Employer}" })
   @ApiCreatedResponse({ description: "Vakansiya yaratildi" })
   @Post()
   create(@Body() createWorkDto: CreateWorkDto, @Req() req: any) {
-    // Agar employerId requesdan kelishi shart bo'lsa:
     return this.workService.create(createWorkDto);
   }
 
   @ApiBearerAuth("JWT-auth")
-  @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
-  @ApiOperation({ summary: "Mening vakansiyalarim ro'yxati {Employer}" })
-  @Get('my-works')
-  findAllMyWorks(@Req() req: any) {
-    // req.user.id bu yerda Employer ID deb faraz qilinadi
-    return this.workService.findAllByEmployer(req.user.id);
-  }
-
-  @ApiBearerAuth("JWT-auth")
-  @UseGuards(AuthGuard, RolesGuard, WorkOwnerGuard) // Faqat egasi tahrirlaydi
+  @UseGuards(AuthGuard, RolesGuard, WorkOwnerGuard) 
   @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
   @ApiOperation({ summary: "Vakansiyani tahrirlash {Owner}" })
   @Patch(':id')
@@ -71,7 +72,7 @@ export class WorkController {
   }
 
   @ApiBearerAuth("JWT-auth")
-  @UseGuards(AuthGuard, RolesGuard, WorkOwnerGuard) // Faqat egasi o'chiradi
+  @UseGuards(AuthGuard, RolesGuard, WorkOwnerGuard)
   @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
   @ApiOperation({ summary: "Vakansiyani o'chirish {Owner/Admin}" })
   @ApiOkResponse({ description: "Vakansiya o'chirildi" })

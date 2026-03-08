@@ -33,7 +33,7 @@ export class AuthService {
   async googleLogin(userData: any) {
     const user = await this.userService.findOrCreate(userData);
 
-    const payload = { email: user.email, roles: user.role };
+    const payload = { email: user.email, role: user.role };
     const access_token = await this.jwtService.signAsync(payload);
     return {
       access_token,
@@ -65,7 +65,7 @@ export class AuthService {
 
       await this.authRepository.update(foundeduser.id,{otp:"", otpTime: 0})
 
-      const payload = {id: foundeduser.id,  email: foundeduser.email, roles: foundeduser.role };
+      const payload = {id: foundeduser.id,  email: foundeduser.email, role: foundeduser.role };
 
       const access_token = await this.jwtService.signAsync(payload);
       return {
@@ -113,6 +113,8 @@ export class AuthService {
       otpTime: time,
     });
     await this.authRepository.save(user);
+
+    return {message: "User registered successfully, token olish uchun verify qismiga o'ting"}
   }
 
 async login(loginauthdto: LoginAuthDto): Promise<{ message: string }> {

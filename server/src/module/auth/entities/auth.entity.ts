@@ -1,12 +1,14 @@
 import { BaseEntity } from "src/database/base.entity";
+import { Employer } from "src/module/employer/entities/employer.entity";
+import { Rezyume } from "src/module/rezyume/entities/rezyume.entity";
 import { UserRole } from "src/shared/constants/user.enum.role";
-import { Column, Entity, PrimaryColumn } from "typeorm";
+import { Column, Entity, OneToOne, PrimaryColumn } from "typeorm";
 
 @Entity({ name: "auth" })
 export class Auth extends BaseEntity {
   @Column()
-  username:string
-  
+  username: string;
+
   @Column()
   email: string;
 
@@ -37,4 +39,11 @@ export class Auth extends BaseEntity {
 
   @Column({ nullable: true })
   bio?: string;
+
+  // auth.entity.ts ichida
+  @OneToOne(() => Employer, (employer) => employer.user)
+  employerProfile: Employer;
+
+  @OneToOne(() => Rezyume, (rezyume) => rezyume.user)
+  rezyume: Rezyume;
 }

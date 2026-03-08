@@ -22,7 +22,7 @@ export class CreateWorkDto {
     @IsNumber() @IsNotEmpty()
     employerId: number;
 
-    @ApiProperty()
+    @ApiProperty({example: 1})
     @IsNumber()
     categoryId?: number;
 }

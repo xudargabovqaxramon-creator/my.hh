@@ -1,41 +1,70 @@
-import { Controller, Post, Get, Body, Param, ParseIntPipe, Patch, Delete } from '@nestjs/common';
-import { EmployerService } from './employer.service';
-import { CreateEmployerDto } from './dto/create-employer.dto';
-import { ApiTags, ApiOperation, ApiResponse } from '@nestjs/swagger';
-import { UpdateEmployerDto } from './dto/update-employer.dto';
+import {
+  Controller,
+  Post,
+  Get,
+  Body,
+  Param,
+  ParseIntPipe,
+  Patch,
+  Delete,
+  UseGuards,
+} from "@nestjs/common";
+import { EmployerService } from "./employer.service";
+import { CreateEmployerDto } from "./dto/create-employer.dto";
+import { UpdateEmployerDto } from "./dto/update-employer.dto";
+import { 
+  ApiTags, 
+  ApiOperation, 
+  ApiResponse, 
+  ApiBearerAuth, 
+  ApiInternalServerErrorResponse 
+} from "@nestjs/swagger";
+import { AuthGuard } from "src/common/guard/auth.guard";
+import { RolesGuard } from "src/common/guard/role.guard";
+import { Roles } from "src/common/decorators/role.decorator";
+import { UserRole } from "src/shared/constants/user.enum.role";
+import { EmployerOwnerGuard } from "./guard/employer-owner.guard";
 
-@ApiTags('Employer')
-@Controller('employer')
+@ApiTags("Ish beruvchi (Employer)")
+@ApiBearerAuth("JWT-auth")
+@ApiInternalServerErrorResponse({ description: "Serverda ichki xatolik" })
+@Controller("employer")
 export class EmployerController {
-    constructor(private readonly employerService: EmployerService) {}
+  constructor(private readonly employerService: EmployerService) {}
 
-    @Post()
-    @ApiOperation({ summary: "Kompaniya profilini yaratish" })
-    create(@Body() dto: CreateEmployerDto) {
-        return this.employerService.create(dto);
-    }
+  @Post()
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN) 
+  @ApiOperation({ summary: "Yangi ish beruvchi profilini yaratish {Admin Only}" })
+  @ApiResponse({ status: 201, description: "Ish beruvchi muvaffaqiyatli yaratildi." })
+  create(@Body() dto: CreateEmployerDto) {
+    return this.employerService.create(dto);
+  }
 
-    @Get()
-    @ApiOperation({ summary: "Barcha kompaniyalarni ko'rish" })
-    findAll() {
-        return this.employerService.findAll();
-    }
+  @Get()
+  @ApiOperation({ summary: "Barcha ish beruvchilar ro'yxatini ko'rish" })
+  @ApiResponse({ status: 200, description: "Ro'yxat qaytarildi." })
+  findAll() {
+    return this.employerService.findAll();
+  }
 
-    
-  @Patch(':id')
-  @ApiOperation({ summary: "Kompaniya ma'lumotlarini tahrirlash" })
-  @ApiResponse({ status: 200, description: 'Muvaffaqiyatli yangilandi.' })
+   @Patch(":id")
+  @UseGuards(AuthGuard, RolesGuard, EmployerOwnerGuard) 
+  @Roles(UserRole.EMPLOYER, UserRole.ADMIN) 
+  @ApiOperation({ summary: "Ish beruvchi ma'lumotlarini tahrirlash {Owner/Admin}" })
   update(
-    @Param('id', ParseIntPipe) id: number, 
-    @Body() updateDto: UpdateEmployerDto
+    @Param("id", ParseIntPipe) id: number,
+    @Body() updateDto: UpdateEmployerDto,
   ) {
     return this.employerService.update(id, updateDto);
   }
 
-  @Delete(':id')
-  @ApiOperation({ summary: "Kompaniya profilini o'chirish" })
-  @ApiResponse({ status: 200, description: "O'chirildi." })
-  remove(@Param('id', ParseIntPipe) id: number) {
+  @Delete(":id")
+  @UseGuards(AuthGuard, RolesGuard, EmployerOwnerGuard)
+  @Roles(UserRole.EMPLOYER, UserRole.ADMIN)
+  @ApiOperation({ summary: "Ish beruvchi profilini o'chirish {Owner/Admin}" })
+  remove(@Param("id", ParseIntPipe) id: number) {
     return this.employerService.remove(id);
   }
+
 }

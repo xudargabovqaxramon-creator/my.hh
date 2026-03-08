@@ -15,7 +15,7 @@ export class CategoriesController {
 
   @ApiBearerAuth("JWT-auth")
   @UseGuards(AuthGuard, RolesGuard)
-  @Roles(UserRole.ADMIN) // Faqat adminlar kategoriya yarata oladi
+  @Roles(UserRole.ADMIN) 
   @Post()
   @ApiOperation({ summary: "Yangi kategoriya yaratish {Admin Only}" })
   create(@Body() createCategoryDto: CreateCategoryDto) {
